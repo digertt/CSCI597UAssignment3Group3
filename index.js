@@ -22,7 +22,7 @@ exports.handler = async (event) => {
     }
     
     catch(error){
-        console.log(error);
+        //handle error
         return;
     }
     
