@@ -10,6 +10,7 @@ const connection = mysql.createConnection({
 	database : config.get('db.database')
   });
 
+// TODO: convert to push to an SQS queue
 function postAdd(username, title, content){
 	return new Promise( (resolve, reject) => {
 		connection.query('INSERT into posts (username, title, content) values (?, ?, ?)', [username, title, content], (error, results, fields) => {
@@ -23,6 +24,7 @@ function postAdd(username, title, content){
 	});
 }
 
+// TODO: convert to DynamoDB call
 function postGetOne(id){
 	return new Promise( (resolve, reject) => {
 		connection.query('SELECT * from posts where postId = ' + connection.escape(id), (error, results, fields) => {
@@ -41,6 +43,7 @@ function postGetOne(id){
 	}); 
 }
 
+// TODO: convert to DynamoDB call
 function postGetAll(){
 	return  new Promise( (resolve, reject) => {
 		connection.query('SELECT * from posts', (error, results, fields) => {
