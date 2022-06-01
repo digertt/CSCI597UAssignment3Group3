@@ -7,7 +7,6 @@ const router = express.Router();
 
 const checkAuth = require('../middleware/checkAuth.middleware');
 const postControllers = require('../controllers/posts.controllers');
-const cache = require('../middleware/cache.middleware')
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.json());
@@ -25,9 +24,9 @@ router.get('/about', (req, res) => {
     res.render('about', { aboutContent: aboutContent });
 });
 
-router.get('/posts/:postId', checkAuth.isAuthenticatedMiddleware, cache.getCacheMiddleware, postControllers.displayPost);
+router.get('/posts/:postId', checkAuth.isAuthenticatedMiddleware, postControllers.displayPost);
 
-router.get('', checkAuth.isAuthenticatedMiddleware, cache.getCacheMiddleware, postControllers.displayAllPosts);
+router.get('', checkAuth.isAuthenticatedMiddleware, postControllers.displayAllPosts);
 router.post('/compose', checkAuth.isAuthenticatedMiddleware, postControllers.composePost);
 
 module.exports = router;

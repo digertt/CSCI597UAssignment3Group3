@@ -3,8 +3,6 @@ const convict_format_with_validator = require('convict-format-with-validator');
 
 convict.addFormats(convict_format_with_validator);
 
-// "redisblogcache.vajsmm.0001.usw2.cache.amazonaws.com",
-
 // Define a schema
 var config = convict({
   env: {
