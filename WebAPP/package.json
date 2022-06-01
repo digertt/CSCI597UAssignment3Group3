@@ -27,7 +27,8 @@
     "mysql": "^2.18.1",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
-    "redis": "^4.0.6"
+    "redis": "^4.0.6",
+    "uuid": "^8.3.2"
   },
   "repository": {
     "type": "git",

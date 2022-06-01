@@ -1,59 +1,104 @@
 const mysql = require('mysql')
 require('dotenv').config();
 const config = require('../config/config');
+var AWS = require('aws-sdk');
+import { v4 as uuidv4 } from 'uuid';
 
-const connection = mysql.createConnection({
-	host     : config.get('db.host'),
-	user     : config.get('db.name'),
-	password : config.get('db.password'),
-	port     : config.get('db.port'),
-	database : config.get('db.database')
-  });
+// Set the region 
+AWS.config.update({region: config.get('sqs.region')});
+// Create an SQS service object
+var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+var sqsQueueUrl;
 
-// TODO: convert to push to an SQS queue
+var params = {
+  QueueName: config.get('sqs.name')
+};
+// pull the url of the queue, so we can send messages to it.
+sqs.getQueueUrl(params, function(err, data) {
+  if (err) {
+    console.log("Error", err);
+  } else {
+    sqsQueueUrl = data.QueueUrl
+  }
+});
+
+
+var dynamoDb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+dynamoTableName = config.get('ddb.name');
+
 function postAdd(username, title, content){
 	return new Promise( (resolve, reject) => {
-		connection.query('INSERT into posts (username, title, content) values (?, ?, ?)', [username, title, content], (error, results, fields) => {
-			if (error) {
-				reject(error);
-			} else {
-				// insert succeeded.
-				resolve({postId: results.insertId, title: title, content: content});
-			}
-		})
+		// package up the data that needs to be placed into the database.
+		var params = {
+		   MessageAttributes: {
+			 "username": {
+			   DataType: "String",
+			   StringValue: username
+			 },
+			 "title": {
+			   DataType: "String",
+			   StringValue: title
+			 },
+			 "content": {
+			   DataType: "String",
+			   StringValue: content
+			 },
+			 "postId": {
+				DataType: "String",
+				StringValue: uuidv4()
+			 }
+		   },
+		   QueueUrl: sqsQueueUrl
+		 };
+		 sqs.sendMessage(params, function(err, data) {
+		   if (err) {
+			 reject(err);
+		   } else {
+			 resolve(data.MessageId);
+		   }
+		 });
 	});
 }
 
-// TODO: convert to DynamoDB call
 function postGetOne(id){
 	return new Promise( (resolve, reject) => {
-		connection.query('SELECT * from posts where postId = ' + connection.escape(id), (error, results, fields) => {
-			if (error) {
-				reject(error);
+		var params = {
+			Key: {
+				"postId": {
+					S: id
+				}
+			},
+			TableName: dynamoTableName
+		}
+		dynamoDb.getItem(params, function(err, data) {
+			if (err) {
+				reject(err);
 			} else {
-				if (results.length > 0) {
+				if (data.Item != undefined) {
 					// post exists
-					resolve(results[0]);
+					resolve(data.Item);
 				} else {
 					reject("Could not find post");
 				}
 			}
-		})
-		
+		});
 	}); 
 }
 
-// TODO: convert to DynamoDB call
 function postGetAll(){
 	return  new Promise( (resolve, reject) => {
-		connection.query('SELECT * from posts', (error, results, fields) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve(results);
-			}
-		})
+		const params = {
+		FilterExpression: "",
+		TableName: dynamoTableName,
+		};
 		
+		ddb.scan(params, function (err, data) {
+		if (err) {
+			reject(err);
+		} else {
+			resolve(data.Items)
+		}
+		});
 	}); 
 }
 module.exports = {

@@ -69,7 +69,28 @@ var config = convict({
       default: '',
       env: 'DB_DB'
     }
-
+  },
+  sqs: {
+    name: {
+      doc: 'SQS name',
+      format: '*',
+      default: 'default',
+      env: 'SQS_NAME'
+    },
+    region: {
+      doc: 'SQS region',
+      format: '*',
+      default: 'default',
+      env: 'SQS_REGION'
+    },
+  },
+  ddb: {
+    name: {
+      doc: 'DynamoDB table name',
+      format: '*',
+      default: 'default',
+      env: 'DDB_NAME'
+    },
   },
   secret: {
     doc: 'Secret used for session cookies and CSRF tokens',
