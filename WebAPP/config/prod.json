@@ -1,5 +1,5 @@
 {
     "env":"prod",
-    "port":443,
+    "port":80,
     "redis_port": 6379
 }
