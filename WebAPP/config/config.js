@@ -70,19 +70,33 @@ var config = convict({
       env: 'DB_DB'
     }
   },
-  sqs: {
-    name: {
-      doc: 'SQS name',
-      format: '*',
-      default: 'default',
-      env: 'SQS_NAME'
-    },
+  aws: {
     region: {
-      doc: 'SQS region',
+      doc: 'AWS region',
       format: '*',
       default: 'default',
-      env: 'SQS_REGION'
+      env: 'AWS_REGION'
     },
+    accessKeyId: {
+      doc: 'AWS access key ID',
+      format: '*',
+      default: 'default',
+      env: 'AWS_ACCESS_KEY'
+    },
+    secretAccessKey: {
+      doc: 'AWS access key secret',
+      format: '*',
+      default: 'default',
+      env: 'AWS_ACCESS_SECRET'
+    },
+  },
+  sqs: {
+    url: {
+      doc: 'SQS URL',
+      format: '*',
+      default: 'default',
+      env: 'SQS_URL'
+    }
   },
   ddb: {
     name: {

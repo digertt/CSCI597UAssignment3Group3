@@ -10,4 +10,4 @@ RUN npm install
 COPY . .
 
 # pm2 run command
-CMD ["node_modules/.bin/pm2", "start", "app.js"]
+CMD ["npm", "start"]
