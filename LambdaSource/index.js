@@ -6,12 +6,13 @@ const DDB = new AWS.DynamoDB.DocumentClient({
 
 exports.handler = async (event) => {
     try{
-        const {message} = event;
-        const curBody = JSON.parse(message.body); //we may need to get multiple items
+        const {Records} = event;
+        const curBody = JSON.parse(Records[0].body);
         
         const curPost = {
-            TableName: 'our-table-name',
+            TableName: 'Blog-App-DB',
             Item:{
+                postId: curBody.postId,
                 username: curBody.username,
                 title: curBody.title,
                 content: curBody.content
@@ -22,7 +23,6 @@ exports.handler = async (event) => {
     }
     
     catch(error){
-        //handle error
         return;
     }
     
