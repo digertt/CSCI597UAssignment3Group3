@@ -1,59 +1,25 @@
-const mysql = require('mysql')
-require('dotenv').config();
-const config = require('../config/config');
-const passwordHandler = require('../middleware/passwords.middleware')
+const mongoose = require("mongoose");
+const passportLocalMongoose = require('passport-local-mongoose');
 
-const connection = mysql.createConnection({
-	host     : config.get('db.host'),
-	user     : config.get('db.name'),
-	password : config.get('db.password'),
-	port     : config.get('db.port'),
-	database : config.get('db.database')
-  });
+const userSchema = new mongoose.Schema({
+	username: {
+		type: String,
+		lowercase: true,
+		required: [ true, "can't be blank" ],
+		match: [ /^[a-zA-Z0-9]+$/, 'Invalid username' ],
+		unique: true,
+		index: true
+	},
+	email: {
+		type: String,
+		lowercase: true,
+		unique: true,
+		required: [ true, "can't be blank" ],
+		match: [ /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Invalid Email' ],
+		index: true
+	}
+});
 
-function userExists({email, username}) {
-	return new Promise( (resolve, reject) => {
-		let sqlText;
-		if (email !== undefined) {
-			sqlText = 'SELECT 1 from users where email  = ' + connection.escape(email)
-		} else if (username !== undefined) {
-			sqlText = 'SELECT 1 from users where username = ' + connection.escape(username)
-		} else {
-			reject('username or email required')
-		}
-		connection.query(sqlText, (error, results, fields) => {
-			if (error) {
-				reject(error);
-			} else {
-				if (results.length > 0) {
-					// user exists
-					resolve(true);
-				} else {
-					resolve(false)
-				}
-			}
-		});
-	});
-}
+userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
 
-function userRegister({email, username}, password) {
-	return new Promise( (resolve, reject) => {
-		hashsalt = passwordHandler.genPassword(password)
-		const hash = hashsalt.hash
-		const salt = hashsalt.salt
-		connection.query('INSERT into users (username, email, password, salt) values (?, ?, ?, ?)', [username, email, hash, salt], (error, results, fields) => {
-			if (error) {
-				reject(error);
-			} else {
-				// insert succeeded.
-				resolve()
-			}
-		})
-	});
-}
-
-module.exports = {
-	exists: userExists,
-	register: userRegister,
-
-}
+module.exports = mongoose.model("User", userSchema);

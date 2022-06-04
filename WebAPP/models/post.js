@@ -1,4 +1,3 @@
-const mysql = require('mysql')
 require('dotenv').config();
 const config = require('../config/config');
 var AWS = require('aws-sdk');
