@@ -14,3 +14,5 @@ We had some challenges with SQS, lambda, and removing redis when converting our 
 
 #### Features
 From what we've tested, all features are working as intended.
+
+# USING 1 SLIP DAY
